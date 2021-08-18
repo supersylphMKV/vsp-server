@@ -3,15 +3,21 @@
  */
 const express = require('express');
 const pug = require('pug');
-const http = require('http');
+const https = require('https');
+const fs = require('fs');
 const path = require('path');
 const app = express();
 
 var frontend, socket, mp;
 
+const options = {
+    key: fs.readFileSync('./keys/key.pem'),
+    cert: fs.readFileSync('./keys/cert.pem')
+  };
+const server = https.createServer(options, app);
 app.set('port', 8223);
 
-const server = app.listen(app.get('port'), function(){
+server.listen(app.get('port'), function(){
 
     frontend = require('./server_modules/frontpage')();
     socket = require('./server_modules/socket_service')(server);

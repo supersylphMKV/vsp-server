@@ -1,4 +1,4 @@
-var socket;
+var socket, room;
 
 function DataInit(){
     socket = io({
@@ -6,7 +6,23 @@ function DataInit(){
           userName: userName
         }
       });
-    socket.on('connection', () => {
-        socket.join('plaza');
+    socket.on('connect', () => {
+        socket.emit('subscribe', 'plaza');
+        room = 'plaza';
     });
+    socket.on('player_update', (data) =>{
+        SimUpdateUser(data);
+    })
+    socket.on('player_join', data => {
+        SimSpawn(data.userName, false);
+    })
+    socket.on('player_leave', data =>{
+        SimDeSpawn(data.userName);
+    })
+}
+
+function BroadcastPlayerData(data){
+    if(socket){
+        socket.emit('player_data', data, room);
+    }
 }

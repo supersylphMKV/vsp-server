@@ -3,13 +3,14 @@ var event_onPlayerConnected;
 var event_onPlayerDisconnected;
 var event_onPlayerData;
 var event_onPlayerCommand;
+var socketMap = {};
 
 function registerEvent(event, cb){
     switch(event){
-        case 'connection':
+        case 'join':
             event_onPlayerConnected = cb;
             break;
-        case 'disconnection':
+        case 'leave':
             event_onPlayerDisconnected = cb;
             break;
         case 'state' :
@@ -22,40 +23,49 @@ function registerEvent(event, cb){
 }
 
 function flagBinding(socket){
-    onConnection(socket);
     socket.on('disconnect', () => {
-        onDisconnection(socket);
+        delete socketMap[socket.id];
     })
-    socket.on('join', (a, b, c) => {
-        console.log(a);
-        console.log(b);
-        console.log(c);
-    })
-    socket.on('leave', (a, b, c) => {
-        console.log(a);
-        console.log(b);
-        console.log(c);
-    })
-}
+    
+    socket.on('subscribe', (room) => {
+        socket.join(room);
+        console.log(io.sockets.clients(room));
+        socket.to(room).emit('player_join', {userName : socketMap[socket.id].userName});
+        if(event_onPlayerConnected){
+            data = {
+                user : socket.id,
+                room : room
+            }
 
-function onConnection(socket){
-    var playerData = socket.handshake.query;
-    playerData.socketId = socket.id;
-    if(event_onPlayerConnected){
-        event_onPlayerConnected(playerData);
-    }
-}
+            event_onPlayerConnected(data);
+        }
+    })
+    socket.on('unsubs', (room) => {
+        socket.leave(room);
+        socket.to(room).emit('player_leave', {userName : socketMap[socket.id].userName});
+        if(event_onPlayerDisconnected){
+            data = {
+                user : socket.id,
+                room : room
+            }
 
-function onDisconnection(socket){
-    if(event_onPlayerDisconnected){
-        event_onPlayerDisconnected(socket.id);
-    }
+            event_onPlayerDisconnected(data);
+        }
+    })
+    socket.on('player_data', (data, room) => {
+        socket.to(room).emit('player_update', data);
+    })
 }
 
 module.exports = (server) => {
     io = require('socket.io')(server);
 
     io.on("connection", (socket) => {
+        var userName = socket.handshake.query.userName;
+        socketMap[socket.id] = {
+            socket : socket,
+            userName : userName
+        };
         flagBinding(socket);
     });
       
