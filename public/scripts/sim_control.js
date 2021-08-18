@@ -38,8 +38,3 @@ function UpdatePlayer(x,y){
     
     BroadcastPlayerData(pd);
 }
-
-var userName = document.getElementById("username");
-var url = "http://localhost:8223/?userName=" + userName;
-document.getElementById("vrcontentroot").insertAdjacentHTML('beforeend',
-'<iframe loading="lazy" src="' + userName + '" width="900" height="700" id="vrwebcorner" allow="fullscreen"></iframe>');
