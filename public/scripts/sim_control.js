@@ -25,7 +25,7 @@ function SimUpdateUser(userData){
         var dataSnd = userData.userName + 
         '|' + userData.posX +
         '|' + userData.posY;
-        unityInstanceRef.SendMessage(unityBridgeObject, 'UpdateUser', dataSnd);
+        unityInstanceRef.SendMessage(unityBridgeObject, 'SimUpdateUser', dataSnd);
     }
 }
 
