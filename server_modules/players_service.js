@@ -19,7 +19,7 @@ module.exports = (skt, options) => {
     var fps = options.fps || 20;
     socket = skt;
 
-    socket.RegisterEvent('connection', onNewConnection);
+    
 
     Runtime(fps);
 

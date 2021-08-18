@@ -1,11 +1,10 @@
-var mainRoot, unityRoot, socket;
-
-$(document).ready(setup);
+var mainRoot, unityRoot, userName;
+$(setup);
 
 function setup(){
-    socket = io();
     mainRoot = $('#unity-container');
     unityRoot = $('#unity_canvas');
+    userName = $('#unity-container').attr('data-id');
 
     var rootWidth, rootheight;
     var loadingBar = document.querySelector("#unity-loading-bar");
@@ -21,20 +20,18 @@ function setup(){
         unityRoot = $('#unity_canvas');
     }
 
-    console.log($(mainRoot).height(), $(mainRoot).width());
-
     loadingBar.style.display = 'block';
 
     var script = document.createElement("script");
-    script.src = "/sim/Build/TempleSpace.loader.js";
+    script.src = "/sim/Build/VSP.loader.js";
     script.onload = ()=>{
         createUnityInstance(document.querySelector("#unity-canvas"), {
-            dataUrl: "./sim/Build/TempleSpace.data",
-            frameworkUrl: "/sim/Build/TempleSpace.framework.js",
-            codeUrl: "./sim/Build/TempleSpace.wasm",
+            dataUrl: "./sim/Build/VSP.data",
+            frameworkUrl: "/sim/Build/VSP.framework.js",
+            codeUrl: "./sim/Build/VSP.wasm",
             streamingAssetsUrl: "StreamingAssets",
             companyName: "DefaultCompany",
-            productName: "2D_IsoTilemaps_Project",
+            productName: "VirtualSpaceDemo",
             productVersion: "0.1",
             // matchWebGLToCanvasSize: false, // Uncomment this to separately control WebGL canvas render size and DOM element size.
             // devicePixelRatio: 1, // Uncomment this to override low DPI rendering on high DPI displays.
@@ -42,8 +39,12 @@ function setup(){
             progressBarFull.style.width = 100 * progress + "%";
           }).then((unityInstance) => {
               loadingBar.style.display = "none";
-              setTimeout(2000,()=>{
-                unityInstance.SetFullscreen(1);
+              SimInit(unityInstance, () => {
+                //unityInstance.SetFullscreen(1);
+                if(userName){
+                  SimSpawn(userName, true);
+                }
+                DataInit();
               });
           }).catch((message) => {
               alert(message);

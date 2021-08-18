@@ -26,6 +26,16 @@ function flagBinding(socket){
     socket.on('disconnect', () => {
         onDisconnection(socket);
     })
+    socket.on('join', (a, b, c) => {
+        console.log(a);
+        console.log(b);
+        console.log(c);
+    })
+    socket.on('leave', (a, b, c) => {
+        console.log(a);
+        console.log(b);
+        console.log(c);
+    })
 }
 
 function onConnection(socket){
@@ -49,7 +59,6 @@ module.exports = (server) => {
         flagBinding(socket);
     });
       
-
     return {
         RegisterEvent : registerEvent
     }
