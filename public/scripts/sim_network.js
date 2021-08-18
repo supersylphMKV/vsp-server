@@ -10,6 +10,15 @@ function DataInit(){
         socket.emit('subscribe', 'plaza');
         room = 'plaza';
     });
+    socket.on('player_list', (data) => {
+        if(data.length){
+            data.forEach(element => {
+                if(element != userName){
+                    SimSpawn(element, false);
+                }
+            });
+        }
+    })
     socket.on('player_update', (data) =>{
         SimUpdateUser(data);
     })

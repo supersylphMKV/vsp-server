@@ -4,6 +4,9 @@ var event_onPlayerDisconnected;
 var event_onPlayerData;
 var event_onPlayerCommand;
 var socketMap = {};
+var roomMap = {
+
+}
 
 function registerEvent(event, cb){
     switch(event){
@@ -24,13 +27,23 @@ function registerEvent(event, cb){
 
 function flagBinding(socket){
     socket.on('disconnect', () => {
+        roomMap[socketMap[socket.id].room] = roomMap[socketMap[socket.id].room].filter(function(value){ 
+            return value != socketMap[socket.id].userName;
+        });
+        socket.to(socketMap[socket.id].room).emit('player_leave', {userName : socketMap[socket.id].userName});
         delete socketMap[socket.id];
     })
     
     socket.on('subscribe', (room) => {
         socket.join(room);
+        if(!(roomMap[room])){
+            roomMap[room] = [];
+        }
+        roomMap[room].push(socketMap[socket.id].userName);
+        socketMap[socket.id].room = room;
+        socket.emit('player_list', roomMap[room]);
         socket.to(room).emit('player_join', {
-            userName : socketMap[socket.id].userName
+            userName : socketMap[socket.id].userName,
         });
         if(event_onPlayerConnected){
             data = {
@@ -43,13 +56,15 @@ function flagBinding(socket){
     })
     socket.on('unsubs', (room) => {
         socket.leave(room);
+        roomMap[room] = roomMap[room].filter(function(value){ 
+            return value != socketMap[socket.id].userName;
+        });
         socket.to(room).emit('player_leave', {userName : socketMap[socket.id].userName});
         if(event_onPlayerDisconnected){
             data = {
                 user : socket.id,
                 room : room
             }
-
             event_onPlayerDisconnected(data);
         }
     })
@@ -60,7 +75,6 @@ function flagBinding(socket){
 
 module.exports = (server) => {
     io = require('socket.io')(server);
-
     io.on("connection", (socket) => {
         var userName = socket.handshake.query.userName;
         socketMap[socket.id] = {

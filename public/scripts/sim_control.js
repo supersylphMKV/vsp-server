@@ -10,6 +10,9 @@ function SimInit(unity, onReady){
 function SimSpawn(userName, isPlayer){
     if(isUnityReady){
         var userData = userName + '|' + isPlayer;
+        if(isPlayer){
+            
+        }
         unityInstanceRef.SendMessage(unityBridgeObject, 'SpawnPlayer', userData);
     }
 }
