@@ -29,7 +29,6 @@ function flagBinding(socket){
     
     socket.on('subscribe', (room) => {
         socket.join(room);
-        console.log(io.sockets.clients(room));
         socket.to(room).emit('player_join', {userName : socketMap[socket.id].userName});
         if(event_onPlayerConnected){
             data = {
