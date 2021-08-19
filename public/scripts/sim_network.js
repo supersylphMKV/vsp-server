@@ -23,7 +23,9 @@ function DataInit(){
         SimUpdateUser(data);
     })
     socket.on('player_join', data => {
-        SimSpawn(data.userName, false);
+        if(data.userName != userName){
+            SimSpawn(data.userName, false);
+        }
     })
     socket.on('player_leave', data =>{
         SimDeSpawn(data.userName);
